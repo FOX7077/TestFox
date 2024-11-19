@@ -1,13 +1,15 @@
 import telebot
-import requests
 from io import BytesIO
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from PIL import Image
+from flask import Flask, request
 
 TOKEN = "7587484876:AAEhY-_4HZeAbtce441zDKkfLOmjZEVbyaE"
 bot = telebot.TeleBot(TOKEN)
 
 user_data = {}
+
+app = Flask(__name__)
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -50,4 +52,14 @@ def compile_images_to_pdf(images):
     pdf_data.seek(0)
     return pdf_data
 
-bot.polling(none_stop=True)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    json_str = request.get_data().decode("UTF-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "OK", 200
+
+if __name__ == '__main__':
+    bot.remove_webhook()
+    bot.set_webhook(url='https://your-domain.com/webhook')
+    app.run(host="0.0.0.0", port=4000)
