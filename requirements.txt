@@ -1,2 +1,2 @@
-pip install Pillow
-pip install telebot
+pip3 install Pillow
+pip3 install pyTelegramBotAPI
